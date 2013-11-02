@@ -1,5 +1,5 @@
 {
-    "name": "rest.client.angular.js",
+    "name": "binarta.rest.client.angular",
     "version": "0.0.0",
     "main": "./src/main/js/rest.client.js",
     "dependencies": {
