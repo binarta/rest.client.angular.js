@@ -1,11 +1,23 @@
 angular.module('rest.client', [])
-    .factory('restServiceHandler', ['$http', '$location', 'topicMessageDispatcher', RestServiceHandlerFactory])
+    .factory('restDefaultHeaderMappers', [RestdefaultHeaderMappersFactory])
+    .factory('installRestDefaultHeaderMapper', ['restDefaultHeaderMappers', InstallRestdefaultHeaderMapperFactory])
+    .factory('restServiceHandler', ['$http', '$location', 'topicMessageDispatcher', 'restDefaultHeaderMappers', RestServiceHandlerFactory])
     .factory('scopedRestServiceHandler', ['restServiceHandler', ScopedRestServiceHandlerFactory])
     .factory('restClient', function($http, baseUri) {
         return new Restclient($http, baseUri);
     });
 
-function RestServiceHandlerFactory($http, $location, topicMessageDispatcher) {
+function RestdefaultHeaderMappersFactory() {
+    return [];
+}
+
+function InstallRestdefaultHeaderMapperFactory(restDefaultHeaderMappers) {
+    return function(mapper) {
+        restDefaultHeaderMappers.push(mapper);
+    }
+}
+
+function RestServiceHandlerFactory($http, $location, topicMessageDispatcher, restDefaultHeaderMappers) {
     return function (ctx) {
         var onError = function (body, status) {
             if(status == 404) {
@@ -26,6 +38,9 @@ function RestServiceHandlerFactory($http, $location, topicMessageDispatcher) {
 
         if (ctx.reset) ctx.reset();
         if (ctx.start) ctx.start();
+        ctx.params.headers = restDefaultHeaderMappers.reduce(function(p, c) {
+            return c(p);
+        }, ctx.params.headers || {});
         $http(ctx.params).error(onError).success(onSuccess);
     };
 }

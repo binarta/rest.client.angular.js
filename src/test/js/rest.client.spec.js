@@ -37,14 +37,14 @@ describe('rest-client', function () {
         var handler, completed, notFound, violations;
         var working, failed, reset;
 
-        beforeEach(inject(function ($controller, $http, $location) {
+        beforeEach(inject(function ($controller, $http, $location, restDefaultHeaderMappers) {
             completed = undefined;
             violations = undefined;
             notFound = false;
             reset = false;
             working = false;
             failed = false;
-            handler = RestServiceHandlerFactory($http, $location, dispatcher);
+            handler = RestServiceHandlerFactory($http, $location, dispatcher, restDefaultHeaderMappers);
         }));
 
         var invoke = function () {
@@ -200,14 +200,39 @@ describe('rest-client', function () {
             });
             $httpBackend.flush();
         });
+
+        describe('when installing a default header mapper', function() {
+            beforeEach(inject(function(installRestDefaultHeaderMapper) {
+                installRestDefaultHeaderMapper(function(headers) {
+                    headers['default-header'] = 'default-header-value'
+                    return headers;
+                });
+            }));
+
+            it('then any headers set by the default header mappers is sent with every request', function() {
+                $httpBackend.expect('GET', /.*/, null, function(it) {
+                    return it['default-header'] == 'default-header-value'
+                }).respond(200);
+                handler({params:{method:'GET', url:'api/test'}});
+                $httpBackend.flush();
+            });
+
+            it('then default header mappers do not overwrite custom headers', function() {
+                $httpBackend.expect('GET', /.*/, null, function(it) {
+                    return it['default-header'] == 'default-header-value' && it['custom-header'] == 'custom-header-value'
+                }).respond(200);
+                handler({params:{method:'GET', url:'api/test', headers:{'custom-header':'custom-header-value'}}});
+                $httpBackend.flush();
+            });
+        });
     });
 
     describe('ScopedRestServiceHandlerFactory', function () {
         var handler, completed;
 
-        beforeEach(inject(function ($controller, $http, $location) {
+        beforeEach(inject(function ($controller, $http, $location, restDefaultHeaderMappers) {
             completed = undefined;
-            handler = ScopedRestServiceHandlerFactory(RestServiceHandlerFactory($http, $location, dispatcher));
+            handler = ScopedRestServiceHandlerFactory(RestServiceHandlerFactory($http, $location, dispatcher, restDefaultHeaderMappers));
         }));
 
         var invoke = function () {
