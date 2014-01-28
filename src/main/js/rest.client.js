@@ -20,14 +20,16 @@ function InstallRestdefaultHeaderMapperFactory(restDefaultHeaderMappers) {
 function RestServiceHandlerFactory($http, $location, topicMessageDispatcher, restDefaultHeaderMappers) {
     return function (ctx) {
         var onError = function (body, status) {
-            if(status == 404) {
-                if(ctx.notFound) ctx.notFound();
-            } else if (status == 412) {
-                ctx.rejected(body);
-            } else if (status == 401 || status == 403)
-                topicMessageDispatcher.fire('checkpoint.auth.required', $location.path());
-            else
-                topicMessageDispatcher.fire('system.alert', status);
+            if(status != 0) {
+                if(status == 404) {
+                    if(ctx.notFound) ctx.notFound();
+                } else if (status == 412) {
+                    ctx.rejected(body);
+                } else if (status == 401 || status == 403)
+                    topicMessageDispatcher.fire('checkpoint.auth.required', $location.path());
+                else
+                    topicMessageDispatcher.fire('system.alert', status);
+            }
             if (ctx.error) ctx.error();
             if (ctx.stop) ctx.stop();
         };

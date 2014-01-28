@@ -97,6 +97,13 @@ describe('rest-client', function () {
             $httpBackend.flush();
         });
 
+        it('0 responses should be silently ignored', function() {
+            $httpBackend.expect('PUT', /.*/).respond(0);
+            invoke();
+            $httpBackend.flush();
+            expect(dispatcher['system.alert']).toEqual(undefined);
+        });
+
         [200, 500].forEach(function (status) {
             it('working status', function () {
                 $httpBackend.expect('PUT', /.*/).respond(status);
@@ -115,7 +122,9 @@ describe('rest-client', function () {
         });
 
         [
-            {status: 0, topic: 'system.alert'}
+            {status: 402, topic: 'system.alert'},
+            {status: 500, topic: 'system.alert'},
+            {status: 501, topic: 'system.alert'}
         ].forEach(function (el) {
                 it('on submit receives ' + el.status + ' response', function () {
                     $httpBackend.expect('PUT', /.*/).respond(el.status);
@@ -269,17 +278,6 @@ describe('rest-client', function () {
                 expect(scope.working).toEqual(false);
             });
         });
-
-        [
-            {status: 0, topic: 'system.alert'}
-        ].forEach(function (el) {
-                it('on submit receives ' + el.status + ' response', function () {
-                    $httpBackend.expect('PUT', /.*/).respond(el.status);
-                    invoke();
-                    $httpBackend.flush();
-                    expect(dispatcher[el.topic]).toEqual(el.status);
-                });
-            });
 
         it('error classes can be retrieved when rejected', function () {
             $httpBackend.expect('PUT', /.*/).respond(412, {
