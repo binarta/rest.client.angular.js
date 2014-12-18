@@ -3,9 +3,9 @@ angular.module('rest.client', [])
     .factory('installRestDefaultHeaderMapper', ['restDefaultHeaderMappers', InstallRestdefaultHeaderMapperFactory])
     .factory('restServiceHandler', ['$http', '$location', 'topicMessageDispatcher', 'restDefaultHeaderMappers', RestServiceHandlerFactory])
     .factory('scopedRestServiceHandler', ['restServiceHandler', ScopedRestServiceHandlerFactory])
-    .factory('restClient', function($http, baseUri) {
+    .factory('restClient', ['$http', 'baseUri', function($http, baseUri) {
         return new Restclient($http, baseUri);
-    });
+    }]);
 
 function RestdefaultHeaderMappersFactory() {
     return [];

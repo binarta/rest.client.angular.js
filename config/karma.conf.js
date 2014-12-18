@@ -1,19 +1,13 @@
-basePath = '../';
-
-files = [
-    JASMINE,
-    JASMINE_ADAPTER,
-    'bower_components/angular/angular.js',
-    'bower_components/angular-mocks/angular-mocks.js',
-    'src/main/js/**/*.js',
-    'src/test/js/**/*.js'
-];
-
-autoWatch = true;
-
-browsers = ['PhantomJS'];
-
-junitReporter = {
-    outputFile: 'test_out/unit.xml',
-    suite: 'unit'
+module.exports = function(config) {
+    config.set({
+        basePath:'../',
+        frameworks:['jasmine'],
+        files:[
+            {pattern:'bower_components/angular/angular.js'},
+            {pattern:'bower_components/angular-mocks/angular-mocks.js'},
+            {pattern:'src/main/js/**/*.js'},
+            {pattern:'src/test/js/**/*.js'}
+        ],
+        browsers:['PhantomJS']
+    });
 };
