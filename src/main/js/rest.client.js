@@ -1,4 +1,4 @@
-angular.module('rest.client', [])
+angular.module('rest.client', ['notifications'])
     .factory('restDefaultHeaderMappers', [RestdefaultHeaderMappersFactory])
     .factory('installRestDefaultHeaderMapper', ['restDefaultHeaderMappers', InstallRestdefaultHeaderMapperFactory])
     .factory('restServiceHandler', ['$http', '$location', 'topicMessageDispatcher', 'restDefaultHeaderMappers', RestServiceHandlerFactory])

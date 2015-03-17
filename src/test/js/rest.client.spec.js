@@ -1,3 +1,5 @@
+angular.module('notifications', []);
+
 describe('rest-client', function () {
     var $httpBackend, scope, params, payload;
     var client;
