@@ -50,7 +50,7 @@ describe('rest-client', function () {
         }));
 
         var invoke = function () {
-            handler({
+            return handler({
                 scope: scope,
                 params: {
                     method: 'PUT',
@@ -235,6 +235,19 @@ describe('rest-client', function () {
                 handler({params:{method:'GET', url:'api/test', headers:{'custom-header':'custom-header-value'}}});
                 $httpBackend.flush();
             });
+        });
+
+        it('return a promise', function () {
+            $httpBackend.expect('PUT', /.*/).respond(201, payload);
+            var promisePayload;
+
+            invoke().success(function (payload) {
+                promisePayload = payload;
+            });
+            $httpBackend.flush();
+
+            expect(completed).toEqual(payload);
+            expect(promisePayload).toEqual(payload);
         });
     });
 

@@ -43,7 +43,7 @@ function RestServiceHandlerFactory($http, $location, topicMessageDispatcher, res
         ctx.params.headers = restDefaultHeaderMappers.reduce(function(p, c) {
             return c(p);
         }, ctx.params.headers || {});
-        $http(ctx.params).error(onError).success(onSuccess);
+        return $http(ctx.params).error(onError).success(onSuccess);
     };
 }
 
