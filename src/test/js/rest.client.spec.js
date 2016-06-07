@@ -1,5 +1,3 @@
-angular.module('notifications', []);
-
 describe('rest-client', function () {
     var $httpBackend, scope, params, payload;
     var client;
@@ -19,15 +17,11 @@ describe('rest-client', function () {
     };
 
     beforeEach(module('rest.client'));
-    beforeEach(inject(function ($injector) {
+    beforeEach(inject(function ($injector, topicMessageDispatcherMock) {
         scope = {};
         params = {};
         payload = 'payload';
-        dispatcher = {
-            fire: function (topic, msg) {
-                dispatcher[topic] = msg;
-            }
-        };
+        dispatcher = topicMessageDispatcherMock;
         $httpBackend = $injector.get('$httpBackend');
     }));
     afterEach(function () {
@@ -39,14 +33,14 @@ describe('rest-client', function () {
         var handler, completed, notFound, violations;
         var working, failed, reset;
 
-        beforeEach(inject(function ($controller, $http, $location, restDefaultHeaderMappers) {
+        beforeEach(inject(function (restServiceHandler) {
             completed = undefined;
             violations = undefined;
             notFound = false;
             reset = false;
             working = false;
             failed = false;
-            handler = RestServiceHandlerFactory($http, $location, dispatcher, restDefaultHeaderMappers);
+            handler = restServiceHandler;
         }));
 
         var invoke = function () {
@@ -254,9 +248,9 @@ describe('rest-client', function () {
     describe('ScopedRestServiceHandlerFactory', function () {
         var handler, completed;
 
-        beforeEach(inject(function ($controller, $http, $location, restDefaultHeaderMappers) {
+        beforeEach(inject(function (scopedRestServiceHandler) {
             completed = undefined;
-            handler = ScopedRestServiceHandlerFactory(RestServiceHandlerFactory($http, $location, dispatcher, restDefaultHeaderMappers));
+            handler = scopedRestServiceHandler;
         }));
 
         var invoke = function () {
@@ -354,83 +348,4 @@ describe('rest-client', function () {
             expect(completed).toEqual(payload);
         });
     });
-
-    describe('requests without baseUri', function () {
-        beforeEach(inject(function ($controller) {
-            client = $controller(RestClient, {baseUri: null})
-        }));
-
-        it('successful request', function () {
-            $httpBackend.expect('PUT', 'path', {key: 'value'}).respond(201);
-            client.put('path', {key: 'value'}, onSuccess);
-            $httpBackend.flush();
-            expect(success).toBeTruthy();
-
-            $httpBackend.expect('POST', 'path', {key: 'value'}).respond(200);
-            client.post('path', {key: 'value'}, onSuccess);
-            $httpBackend.flush();
-            expect(success).toBeTruthy();
-
-            $httpBackend.expect('DELETE', 'path', {key: 'value'}).respond(204);
-            client.delete('path', {key: 'value'}, onSuccess);
-            $httpBackend.flush();
-            expect(success).toBeTruthy();
-
-            $httpBackend.expect('GET', 'path').respond(200);
-            client.get('path', onSuccess);
-            $httpBackend.flush();
-            expect(success).toBeTruthy();
-        });
-
-        it('failed request', function () {
-            $httpBackend.expect('PUT', /.*/, {}).respond(500);
-            client.put('path', {}, onSuccess, onError);
-            $httpBackend.flush();
-            expect(returnedStatus).toEqual(500);
-            expect(error).toBeTruthy();
-
-            $httpBackend.expect('POST', /.*/, {}).respond(500);
-            client.post('path', {}, onSuccess, onError);
-            $httpBackend.flush();
-            expect(returnedStatus).toEqual(500);
-            expect(error).toBeTruthy();
-
-            $httpBackend.expect('DELETE', /.*/, {}).respond(500);
-            client.delete('path', {}, onSuccess, onError);
-            $httpBackend.flush();
-            expect(returnedStatus).toEqual(500);
-            expect(error).toBeTruthy();
-
-            $httpBackend.expect('GET', /.*/).respond(500);
-            client.get('path', onSuccess, onError);
-            $httpBackend.flush();
-            expect(returnedStatus).toEqual(500);
-            expect(error).toBeTruthy();
-        });
-    });
-
-    describe('requests with baseUri', function () {
-        beforeEach(inject(function ($controller) {
-            client = $controller(RestClient, {baseUri: 'base-uri'})
-        }));
-
-        it('prepend base-uri while appending slash', function () {
-            $httpBackend.expect('PUT', 'base-uri/path', {key: 'value'}).respond(201);
-            client.put('path', {key: 'value'}, onSuccess);
-            $httpBackend.flush();
-        });
-    });
-
-    describe('requests with baseUri with trailing slash', function () {
-        beforeEach(inject(function ($controller) {
-            client = $controller(RestClient, {baseUri: 'base-uri/'})
-        }));
-
-        it('prepend base-uri without appending slash', function () {
-            $httpBackend.expect('PUT', 'base-uri/path', {key: 'value'}).respond(201);
-            client.put('path', {key: 'value'}, onSuccess);
-            $httpBackend.flush();
-        })
-    });
-
 });

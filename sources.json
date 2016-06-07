@@ -1,0 +1,5 @@
+{
+  "default": {
+    "rest.client": "bower_components/binarta.rest.client.angular/src/main/js/rest.client.js"
+  }
+}
