@@ -14,7 +14,7 @@
     function RestServiceHandlerFactory($http, $location, topicMessageDispatcher, restDefaultHeaderMappers) {
         return function (ctx) {
             var onError = function (body, status) {
-                if(status != 0) {
+                if(status != 0 && status != -1) {
                     if(status == 404) {
                         if(ctx.notFound) ctx.notFound();
                     } else if (status == 412) {

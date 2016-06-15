@@ -93,11 +93,13 @@ describe('rest-client', function () {
             $httpBackend.flush();
         });
 
-        it('0 responses should be silently ignored', function() {
-            $httpBackend.expect('PUT', /.*/).respond(0);
-            invoke();
-            $httpBackend.flush();
-            expect(dispatcher['system.alert']).toEqual(undefined);
+        [0, -1].forEach(function (status) {
+            it(status + ' responses should be silently ignored', function() {
+                $httpBackend.expect('PUT', /.*/).respond(status);
+                invoke();
+                $httpBackend.flush();
+                expect(dispatcher['system.alert']).toEqual(undefined);
+            });
         });
 
         [200, 500].forEach(function (status) {
